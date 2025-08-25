@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockSim - Learn Stock Market</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --primary-light: #818CF8;
+            --secondary: #06B6D4;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+            --dark: #1F2937;
+            --light: #F9FAFB;
+            --sidebar-bg: #1E293B;
+            --sidebar-width: 280px;
+            --card-border-radius: 12px;
+            --transition: all 0.3s ease;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+            background-color: #F3F4F6;
+            color: #374151;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 1.5rem 1rem;
+            transition: var(--transition);
+            z-index: 1000;
+            box-shadow: var(--box-shadow);
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            padding: 0 1rem 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-brand i {
+            font-size: 1.8rem;
+            color: var(--primary-light);
+            margin-right: 0.75rem;
+        }
+
+        .sidebar-brand span {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-link.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+
+        .user-section {
+            position: absolute;
+            bottom: 2rem;
+            width: calc(100% - 2rem);
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .user-info i {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+            color: var(--primary-light);
+        }
+
+        .user-info span {
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            text-align: center;
+            background: rgba(239, 68, 68, 0.15);
+            color: #FCA5A5;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.25);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+        }
+
+        /* Header */
+        .learn-header {
+            margin-bottom: 2rem;
+        }
+
+        .learn-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .learn-header p {
+            color: #6B7280;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 20px;
+            font-weight: 500;
+            color: #4B5563;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Video Grid */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: var(--card-border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            height: 180px;
+            overflow: hidden;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .video-card:hover .video-thumbnail img {
+            transform: scale(1.05);
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .video-content {
+            padding: 1rem;
+        }
+
+        .video-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            display: -webkit-box;
+
+            overflow: hidden;
+        }
+
+        .channel-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .channel-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 0.75rem;
+            background: #E5E7EB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .channel-name {
+            font-size: 0.9rem;
+            color: #6B7280;
+        }
+
+        .video-meta {
+            display: flex;
+            align-items: center;
+            color: #6B7280;
+            font-size: 0.85rem;
+        }
+
+        .video-views::after {
+            content: "•";
+            margin: 0 0.5rem;
+        }
+
+        /* Topic Sections */
+        .topic-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .view-all {
+            color: var(--primary);
+            font-weight: 500;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .view-all:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .video-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 1100;
+                background: var(--primary);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .video-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-bar {
+                gap: 0.5rem;
+            }
+            
+            .filter-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Mobile menu toggle */
+        .menu-toggle {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-chart-line"></i>
+            <span>StockSim</span>
+        </div>
+        
+        <ul class="sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-home"></i>
+                    <span>Portfolio</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('buy_page')}}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Buy</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('sell_page')}}">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>Sell</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="#">
+                    <i class="fas fa-book"></i>
+                    <span>Learn</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="user-section">
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span>{{ current_user.username }}</span>
+            </div>
+            <a href="{{url_for('logout')}}" class="logout-btn">
+                <i class="fas fa-cog me-1"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="learn-header">
+            <h1>Stock Market Learning Hub</h1>
+            <p>Learn from the best resources to master stock market investing</p>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <button class="filter-btn active">All</button>
+            <button class="filter-btn">Beginner</button>
+            <button class="filter-btn">Intermediate</button>
+            <button class="filter-btn">Advanced</button>
+            <button class="filter-btn">Indian Market</button>
+            <button class="filter-btn">Technical Analysis</button>
+            <button class="filter-btn">Fundamental Analysis</button>
+            <button class="filter-btn">Trading Strategies</button>
+        </div>
+
+        <!-- Basics for Beginners Section -->
+        <div class="topic-section">
+            <div class="section-header">
+                <h2 class="section-title">Basics for Beginners</h2>
+                <a href="#" class="view-all">View all</a>
+            </div>
+            
+            <div class="video-grid">
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=bb6_M_srMBk&pp=ygU8U3RvY2sgTWFya2V0IGZvciBCZWdpbm5lcnMgMjAyNSDigJMgVWx0aW1hdGUgSW52ZXN0aW5nIEd1aWRl', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/bb6_M_srMBk/hqdefault.jpg" alt="Stock Market for Beginners">
+                        <span class="video-duration">25:18</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">Stock Market for Beginners 2025 – Ultimate Investing Guide</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">FE</div>
+                            <span class="channel-name">Financial Education</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">1.2M views</span>
+                            <span class="video-date">6 months ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=TvDgncoLcMk&pp=ygU0SG93IHRvIEludmVzdCBpbiBTdG9ja3MgZm9yIEJlZ2lubmVycyAoU3RlcC1ieS1TdGVwKQ%3D%3D', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/GDMiThQCWsM/hqdefault.jpg" alt="How to Invest in Stocks">
+                        <span class="video-duration">18:42</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">How to Invest in Stocks for Beginners (Step-by-Step)</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">C</div>
+                            <span class="channel-name">Compound</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">845K views</span>
+                            <span class="video-date">8 months ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=3CYOz_2sDc0', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/3CYOz_2sDc0/hqdefault.jpg" alt="Stock Market Terms">
+                        <span class="video-duration">14:25</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">15 Stock Market Terms Every Beginner Should Know</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">WE</div>
+                            <span class="channel-name">Wealth Express</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">523K views</span>
+                            <span class="video-date">3 months ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=Wf3Z0h39FgU', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/Wf3Z0h39FgU/hqdefault.jpg" alt="Mistakes to Avoid">
+                        <span class="video-duration">22:10</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">7 Common Beginner Investor Mistakes and How to Avoid Them</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">IA</div>
+                            <span class="channel-name">Investing Academy</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">678K views</span>
+                            <span class="video-date">1 year ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indian Stock Market Section -->
+        <div class="topic-section">
+            <div class="section-header">
+                <h2 class="section-title">Indian Stock Market</h2>
+                <a href="#" class="view-all">View all</a>
+            </div>
+            
+            <div class="video-grid">
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=7Lz7hzdm_2g', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/7Lz7hzdm_2g/hqdefault.jpg" alt="Indian Stock Market">
+                        <span class="video-duration">32:05</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">How to Invest in Indian Stock Market - Complete Guide 2025</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">SM</div>
+                            <span class="channel-name">Stock Market India</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">1.5M views</span>
+                            <span class="video-date">4 months ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=Zr8iVcxzX2U', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/Zr8iVcxzX2U/hqdefault.jpg" alt="NSE & BSE">
+                        <span class="video-duration">19:30</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">Understanding NSE and BSE - Indian Stock Exchanges Explained</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">FI</div>
+                            <span class="channel-name">Finance In Hindi</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">892K views</span>
+                            <span class="video-date">7 months ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=kGQY-6DxW_8', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/kGQY-6DxW_8/hqdefault.jpg" alt="Indian Investors">
+                        <span class="video-duration">28:15</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">Top 10 Stocks for Long Term Investment in India 2025</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">WE</div>
+                            <span class="channel-name">Wealth Eagles</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">1.1M views</span>
+                            <span class="video-date">2 months ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=zVdJhq2qLh8', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/zVdJhq2qLh8/hqdefault.jpg" alt="SIP Investment">
+                        <span class="video-duration">16:45</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">SIP vs Lump Sum Investment - Which is Better for Indian Investors?</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">MF</div>
+                            <span class="channel-name">Mutual Funds Guru</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">756K views</span>
+                            <span class="video-date">5 months ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Analysis Section -->
+        <div class="topic-section">
+            <div class="section-header">
+                <h2 class="section-title">Technical Analysis</h2>
+                <a href="#" class="view-all">View all</a>
+            </div>
+            
+            <div class="video-grid">
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=6g5U5MlZYoY', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/6g5U5MlZYoY/hqdefault.jpg" alt="Technical Analysis">
+                        <span class="video-duration">45:22</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">Technical Analysis Masterclass - Complete Course for Beginners</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">TA</div>
+                            <span class="channel-name">Technical Analysis</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">2.3M views</span>
+                            <span class="video-date">1 year ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=8g7RoqBx65s', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/8g7RoqBx65s/hqdefault.jpg" alt="Candlestick Patterns">
+                        <span class="video-duration">22:18</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">15 Powerful Candlestick Patterns Every Trader Must Know</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">TP</div>
+                            <span class="channel-name">Trading Pro</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">1.7M views</span>
+                            <span class="video-date">9 months ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=9Rcctc9WBbo', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/9Rcctc9WBbo/hqdefault.jpg" alt="RSI Indicator">
+                        <span class="video-duration">18:32</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">How to Use RSI Indicator for Profitable Trading</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">II</div>
+                            <span class="channel-name">Indicator Insights</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">934K views</span>
+                            <span class="video-date">6 months ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=KzyYgG8nWU0', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/KzyYgG8nWU0/hqdefault.jpg" alt="Moving Averages">
+                        <span class="video-duration">20:15</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">Moving Averages Explained - Simple vs Exponential</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">TS</div>
+                            <span class="channel-name">Trading Simplified</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">1.2M views</span>
+                            <span class="video-date">3 months ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hindi Content Section -->
+        <div class="topic-section">
+            <div class="section-header">
+                <h2 class="section-title">हिंदी सामग्री (Hindi Content)</h2>
+                <a href="#" class="view-all">View all</a>
+            </div>
+            
+            <div class="video-grid">
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=u6Q-YjWE_5w', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/u6Q-YjWE_5w/hqdefault.jpg" alt="Stock Market in Hindi">
+                        <span class="video-duration">38:14</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">शेयर मार्केट की पूरी जानकारी - Complete Stock Market Guide in Hindi</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">FH</div>
+                            <span class="channel-name">Finance Hindi</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">3.4M views</span>
+                            <span class="video-date">1 year ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=zVdJhq2qLh8', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/zVdJhq2qLh8/hqdefault.jpg" alt="CA Rachana">
+                        <span class="video-duration">42:25</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">Basics of Stock Market for Beginners - CA Rachana Phadke Ranade</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">CR</div>
+                            <span class="channel-name">CA Rachana</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">4.2M views</span>
+                            <span class="video-date">2 years ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=Wf3Z0h39FgU', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/Wf3Z0h39FgU/hqdefault.jpg" alt="Intraday Trading">
+                        <span class="video-duration">25:40</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">इंट्राडे ट्रेडिंग कैसे करें - Complete Intraday Trading Guide in Hindi</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">TT</div>
+                            <span class="channel-name">Trade Tech</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">2.1M views</span>
+                            <span class="video-date">8 months ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=3CYOz_2sDc0', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/3CYOz_2sDc0/hqdefault.jpg" alt="Mutual Funds">
+                        <span class="video-duration">30:15</span>
+                    </div>
+                    <div class="video-content">
+                        <h3 class="video-title">म्यूचुअल फंड में निवेश कैसे करें - Mutual Funds Guide in Hindi</h3>
+                        <div class="channel-info">
+                            <div class="channel-icon">MF</div>
+                            <span class="channel-name">Mutual Fund Hindi</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="video-views">1.8M views</span>
+                            <span class="video-date">10 months ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+        }
+
+        // Filter functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Here you would normally filter the content
+                // For this example, we'll just log the filter
+                console.log(`Filtering by: ${this.textContent}`);
+            });
+        });
+
+        // Add animation to video cards when they come into view
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoCards = document.querySelectorAll('.video-card');
+            
+            videoCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('animate__animated', 'animate__fadeInUp');
+            });
+        });
+    </script>
+</body>
+</html>

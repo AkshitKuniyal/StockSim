@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora Stock Market Simulator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Aurora Professional Color Palette */
+            --aurora-bg-primary: #0F1419;
+            --aurora-bg-secondary: #1A1F2E;
+            --aurora-bg-tertiary: #252A3A;
+            --aurora-bg-card: #1E2332;
+            
+            /* Subtle Aurora Blues */
+            --aurora-blue-50: #F0F4F8;
+            --aurora-blue-100: #D9E2EC;
+            --aurora-blue-200: #BCCCDC;
+            --aurora-blue-300: #9FB3C8;
+            --aurora-blue-400: #829AB1;
+            --aurora-blue-500: #627D98;
+            --aurora-blue-600: #486581;
+            --aurora-blue-700: #334E68;
+            --aurora-blue-800: #243B53;
+            --aurora-blue-900: #102A43;
+            
+            /* Accent Colors */
+            --aurora-accent-teal: #38B2AC;
+            --aurora-accent-purple: #6B73FF;
+            --aurora-accent-cyan: #4FD1C7;
+            --aurora-accent-emerald: #10B981;
+            --aurora-accent-rose: #F56565;
+            
+            /* Text Colors */
+            --aurora-text-primary: #E2E8F0;
+            --aurora-text-secondary: #CBD5E0;
+            --aurora-text-muted: #A0AEC0;
+            --aurora-text-subtle: #718096;
+            
+            /* Glass Effects */
+            --aurora-glass: rgba(30, 35, 50, 0.4);
+            --aurora-glass-light: rgba(30, 35, 50, 0.2);
+            --aurora-glass-border: rgba(226, 232, 240, 0.1);
+            --aurora-glass-hover: rgba(30, 35, 50, 0.6);
+            
+            /* Gradients */
+            --aurora-gradient-primary: linear-gradient(135deg, #4FD1C7 0%, #38B2AC 50%, #6B73FF 100%);
+            --aurora-gradient-secondary: linear-gradient(135deg, #1E2332 0%, #252A3A 100%);
+            --aurora-gradient-card: linear-gradient(135deg, rgba(30, 35, 50, 0.5) 0%, rgba(37, 42, 58, 0.3) 100%);
+            
+            /* Effects */
+            --aurora-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            --aurora-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.2);
+            --aurora-blur: 16px;
+            --aurora-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--aurora-bg-primary);
+            color: var(--aurora-text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Subtle Aurora Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(79, 209, 199, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(107, 115, 255, 0.04) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(56, 178, 172, 0.03) 0%, transparent 50%);
+            animation: aurora-drift 25s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+
+        @keyframes aurora-drift {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: scale(1.1) rotate(1deg); opacity: 0.8; }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--aurora-glass) !important;
+            backdrop-filter: blur(var(--aurora-blur));
+            border-bottom: 1px solid var(--aurora-glass-border);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: var(--aurora-transition);
+        }
+
+        .navbar.scrolled {
+            background: var(--aurora-glass-hover) !important;
+            backdrop-filter: blur(20px);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--aurora-text-primary) !important;
+            display: flex;
+            align-items: center;
+            transition: var(--aurora-transition);
+        }
+
+        .navbar-brand i {
+            background: var(--aurora-gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-right: 0.5rem;
+        }
+
+        .nav-link {
+            color: var(--aurora-text-secondary) !important;
+            font-weight: 500;
+            transition: var(--aurora-transition);
+            margin: 0 0.3rem;
+            border-radius: 8px;
+            padding: 0.6rem 1rem !important;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--aurora-text-primary) !important;
+            background: rgba(79, 209, 199, 0.1);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 120px 0 80px;
+            text-align: center;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--aurora-text-primary);
+            line-height: 1.2;
+        }
+
+        .hero-content .highlight {
+            background: var(--aurora-gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-content .subtitle {
+            font-size: 1.25rem;
+            color: var(--aurora-text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            font-weight: 400;
+        }
+
+        /* Buttons */
+        .btn-aurora-primary {
+            background: var(--aurora-gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.9rem 2.2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--aurora-transition);
+            margin: 0.3rem;
+            box-shadow: 0 4px 15px rgba(79, 209, 199, 0.2);
+        }
+
+        .btn-aurora-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 209, 199, 0.3);
+        }
+
+        .btn-aurora-secondary {
+            background: var(--aurora-glass);
+            backdrop-filter: blur(var(--aurora-blur));
+            border: 1px solid var(--aurora-glass-border);
+            color: var(--aurora-text-primary);
+            padding: 0.9rem 2.2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--aurora-transition);
+            margin: 0.3rem;
+        }
+
+        .btn-aurora-secondary:hover {
+            background: var(--aurora-glass-hover);
+            border-color: rgba(79, 209, 199, 0.3);
+            transform: translateY(-2px);
+            color: var(--aurora-text-primary);
+        }
+
+        /* Market Ticker */
+        .market-ticker {
+            background: var(--aurora-gradient-card);
+            backdrop-filter: blur(var(--aurora-blur));
+            border: 1px solid var(--aurora-glass-border);
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin: 3rem auto;
+            max-width: 800px;
+            overflow: hidden;
+            box-shadow: var(--aurora-shadow);
+        }
+
+        .ticker-scroll {
+            display: flex;
+            animation: ticker-move 30s linear infinite;
+        }
+
+        @keyframes ticker-move {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .ticker-item {
+            padding: 0 1.5rem;
+            font-weight: 600;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            color: var(--aurora-text-secondary);
+        }
+
+        .ticker-symbol {
+            color: var(--aurora-text-primary);
+            margin-right: 0.5rem;
+        }
+
+        .ticker-positive { color: var(--aurora-accent-emerald); }
+        .ticker-negative { color: var(--aurora-accent-rose); }
+
+        /* Feature Cards */
+        .features-section {
+            padding: 5rem 0;
+        }
+
+        .feature-card {
+            background: var(--aurora-gradient-card);
+            backdrop-filter: blur(var(--aurora-blur));
+            border: 1px solid var(--aurora-glass-border);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            height: 100%;
+            transition: var(--aurora-transition);
+            box-shadow: var(--aurora-shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--aurora-shadow-lg);
+            border-color: rgba(79, 209, 199, 0.2);
+            background: var(--aurora-glass-hover);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--aurora-gradient-primary);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(79, 209, 199, 0.2);
+        }
+
+        .feature-icon i {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .feature-card h4 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            color: var(--aurora-text-primary);
+        }
+
+        .feature-card p {
+            color: var(--aurora-text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 4rem 0;
+            background: var(--aurora-glass-light);
+            backdrop-filter: blur(var(--aurora-blur));
+            border-top: 1px solid var(--aurora-glass-border);
+            border-bottom: 1px solid var(--aurora-glass-border);
+            margin: 4rem 0;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--aurora-gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--aurora-text-secondary);
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--aurora-bg-secondary);
+            padding: 3rem 0 2rem;
+            border-top: 1px solid var(--aurora-glass-border);
+        }
+
+        .footer h5 {
+            color: var(--aurora-text-primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .footer a {
+            color: var(--aurora-text-muted);
+            text-decoration: none;
+            transition: var(--aurora-transition);
+            font-size: 0.9rem;
+        }
+
+        .footer a:hover {
+            color: var(--aurora-accent-teal);
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .footer-brand i {
+            background: var(--aurora-gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-right: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .social-links a {
+            margin: 0 0.5rem;
+            font-size: 1.1rem;
+            transition: var(--aurora-transition);
+        }
+
+        .social-links a:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero-content h1 { font-size: 2.8rem; }
+            .hero-content .subtitle { font-size: 1.1rem; }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section { padding: 100px 0 60px; }
+            .hero-content h1 { font-size: 2.3rem; }
+            .btn-aurora-primary, .btn-aurora-secondary {
+                display: block;
+                width: 100%;
+                max-width: 280px;
+                margin: 0.5rem auto;
+            }
+            .feature-card { padding: 2rem 1.5rem; }
+            .stat-number { font-size: 2rem; }
+        }
+
+        @media (max-width: 576px) {
+            .hero-content h1 { font-size: 2rem; }
+            .ticker-item { padding: 0 1rem; font-size: 0.9rem; }
+        }
+
+        /* Smooth animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .fade-in-delay-1 { animation-delay: 0.2s; }
+        .fade-in-delay-2 { animation-delay: 0.4s; }
+        .fade-in-delay-3 { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-chart-line"></i>
+                 StockSim
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="{{ url_for('login') }}">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                    <a class="nav-link" href="{{ url_for('register') }}">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="hero-content fade-in">
+                <h1>
+                    Professional <span class="highlight">Stock Market</span><br>
+                    Simulation Platform
+                </h1>
+                <p class="subtitle">
+                    Master investment strategies with our sophisticated virtual trading environment. 
+                    Real market data, zero financial risk, unlimited learning potential.
+                </p>
+                
+                <div class="mb-4">
+                    <a href="{{ url_for('register') }}">
+                    <button class="btn btn-aurora-primary">
+                        <i class="fas fa-play me-2"></i>Start Trading
+                    </button></a>
+                </div>
+
+                <!-- Market Ticker -->
+                <div class="market-ticker fade-in fade-in-delay-1">
+                    <div class="ticker-scroll">
+                        <div class="ticker-item">
+                            <span class="ticker-symbol">AAPL</span>
+                            <span class="ticker-positive">+1.24%</span>
+                        </div>
+                        <div class="ticker-item">
+                            <span class="ticker-symbol">MSFT</span>
+                            <span class="ticker-positive">+0.87%</span>
+                        </div>
+                        <div class="ticker-item">
+                            <span class="ticker-symbol">GOOGL</span>
+                            <span class="ticker-negative">-0.43%</span>
+                        </div>
+                        <div class="ticker-item">
+                            <span class="ticker-symbol">TSLA</span>
+                            <span class="ticker-positive">+2.15%</span>
+                        </div>
+                        <div class="ticker-item">
+                            <span class="ticker-symbol">AMZN</span>
+                            <span class="ticker-positive">+1.56%</span>
+                        </div>
+                        <div class="ticker-item">
+                            <span class="ticker-symbol">NVDA</span>
+                            <span class="ticker-positive">+3.21%</span>
+                        </div>
+                        <!-- Duplicate for seamless loop -->
+                        <div class="ticker-item">
+                            <span class="ticker-symbol">AAPL</span>
+                            <span class="ticker-positive">+1.24%</span>
+                        </div>
+                        <div class="ticker-item">
+                            <span class="ticker-symbol">MSFT</span>
+                            <span class="ticker-positive">+0.87%</span>
+                        </div>
+                        <div class="ticker-item">
+                            <span class="ticker-symbol">GOOGL</span>
+                            <span class="ticker-negative">-0.43%</span>
+                        </div>
+                        <div class="ticker-item">
+                            <span class="ticker-symbol">TSLA</span>
+                            <span class="ticker-positive">+2.15%</span>
+                        </div>
+                        <div class="ticker-item">
+                            <span class="ticker-symbol">AMZN</span>
+                            <span class="ticker-positive">+1.56%</span>
+                        </div>
+                        <div class="ticker-item">
+                            <span class="ticker-symbol">NVDA</span>
+                            <span class="ticker-positive">+3.21%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+    <!-- Features Section -->
+    <div class="container features-section">
+        <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <h4>Virtual Portfolio</h4>
+                    <p>Start with $10,000 virtual capital and build a diversified portfolio using real-time market data from major exchanges.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-card fade-in fade-in-delay-1">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h4>Live Market Data</h4>
+                    <p>Access real-time stock prices, historical charts, and comprehensive market analysis powered by premium financial APIs.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-card fade-in fade-in-delay-2">
+                    <div class="feature-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h4>Educational Resources</h4>
+                    <p>Learn investment strategies, market analysis techniques, and risk management through our comprehensive learning center.</p>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <h4>Advanced Trading Tools</h4>
+                    <p>Execute market orders, limit orders, and stop-losses. Track performance with detailed analytics and transaction history.</p>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="feature-card fade-in fade-in-delay-1">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h4>Performance Analytics</h4>
+                    <p>Monitor portfolio performance with interactive charts, risk metrics, and personalized insights to improve your strategy.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="footer-brand">
+                        <i class="fas fa-chart-line"></i>
+                        <h5>Aurora StockSim</h5>
+                    </div>
+                    <p style="color: var(--aurora-text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                        Professional stock market simulation platform designed for serious investors and learners.
+                    </p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3 col-sm-6 mb-4">
+                    <h5>Platform</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#">Features</a></li>
+                        <li class="mb-2"><a href="#">Pricing</a></li>
+                        <li class="mb-2"><a href="#">API</a></li>
+                        <li class="mb-2"><a href="#">Documentation</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-3 col-sm-6 mb-4">
+                    <h5>Resources</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#">Learning Center</a></li>
+                        <li class="mb-2"><a href="#">Market Data</a></li>
+                        <li class="mb-2"><a href="#">Analysis Tools</a></li>
+                        <li class="mb-2"><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-3 col-sm-6 mb-4">
+                    <h5>Company</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#">About</a></li>
+                        <li class="mb-2"><a href="#">Blog</a></li>
+                        <li class="mb-2"><a href="#">Careers</a></li>
+                        <li class="mb-2"><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-3 col-sm-6 mb-4">
+                    <h5>Legal</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#">Privacy</a></li>
+                        <li class="mb-2"><a href="#">Terms</a></li>
+                        <li class="mb-2"><a href="#">Security</a></li>
+                        <li class="mb-2"><a href="#">Compliance</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr style="border-color: var(--aurora-glass-border); margin: 2rem 0 1rem;">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p style="color: var(--aurora-text-muted); margin: 0; font-size: 0.85rem;">
+                        &copy; 2024 Aurora StockSim. All rights reserved.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p style="color: var(--aurora-text-muted); margin: 0; font-size: 0.85rem;">
+                        Built with Flask & Premium Financial APIs
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth navbar scroll effect
+            const navbar = document.querySelector('.navbar');
+            
+            function handleScroll() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }
+            
+            window.addEventListener('scroll', handleScroll);
+            
+            // Intersection Observer for animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe fade-in elements
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+            
+            // Mobile navbar
+            const navbarToggler = document.querySelector('.navbar-toggler');
+            const navbarNav = document.querySelector('#navbarNav');
+            
+            if (navbarToggler) {
+                navbarToggler.addEventListener('click', function() {
+                    navbarNav.classList.toggle('show');
+                });
+            }
+            
+            // Smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
