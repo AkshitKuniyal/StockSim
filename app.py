@@ -8,15 +8,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 import requests
 from flask_login import logout_user, login_required
+from dotenv import load_dotenv
 
-
-FINNHUB_API_KEY = "d2km22hr01qs23a2s0qgd2km22hr01qs23a2s0r0"
-BASE_URL = "https://finnhub.io/api/v1"
-
-
-
-# Load environment variables
 load_dotenv()
+FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
+BASE_URL = "https://finnhub.io/api/v1"
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key-change-in-production')
